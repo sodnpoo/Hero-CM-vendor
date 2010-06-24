@@ -25,3 +25,8 @@ add_lunch_combo cyanogen_hero-eng
 10. execute "lunch" and choose "cyanogen_hero-eng"
 
 11. make :)
+
+NOTES:
+you will have to go to external/busybox and issue a
+git checkout d0194cfc47a71a65e049
+until the problems with the new version of busybox are resolved
