@@ -1,32 +1,63 @@
-In order to compile Cyanogen
+To build CyanogenMod for HTC hero (27/Jun/10)
 
-1. cd to your-cyanogen-source/vendor/htc
+1.  create a cyanogenmod root directory and change into it
+      mkdir cm 
+      cd cm
 
-2. git clone git@github.com:maxisma/Hero-CM-vendor.git hero
+2. pull down the eclair-ds branch
+      repo init -u git://github.com/cyanogen/android.git -b eclair-ds
+      
+3. create .repo/local_manifest.xml with the following content
+      nano .repo/local_manifest.xml
 
-3. edit vendor/cyanogen/vendorsetup.sh by adding a new line:
-add_lunch_combo cyanogen_hero-eng
+---cut here---      
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- cyanogen's vendor with support added for hero -->
+  <remove-project name="cyanogen/android_vendor_cyanogen" />
+  <project path="vendor/cyanogen" name="sodnpoo/android_vendor_cyanogen" remote="github" />
 
-4. edit vendor/cyanogen/products/AndroidProducts.mk and add a new line:
-         $(LOCAL_DIR)/cyanogen_hero.mk \
+	<!-- hero kernel -->
+	<remove-project name="cyanogen/cm-kernel" />
+	<project path="kernel-msm" name="sodnpoo/HeRo-2.6.29-GoDmOdE" remote="github" revision="master" />
 
-*You will need to remove the line that contains cyanogen_supersonic until it is fully included in the repository
+	<!-- fix Gallery3D rotation bug (using the mdpi branch) -->
+	<remove-project name="cyanogen/android_packages_apps_Gallery3D" />
+	<project path="packages/apps/Gallery3D" name="cyanogen/android_packages_apps_Gallery3D" remote="github" revision="eclair-mdpi"/>
+	
+	<!-- fix 5MP crash by cheating -->
+	<remove-project name="cyanogen/android_packages_apps_Camera" />
+  <project path="packages/apps/Camera" name="sodnpoo/android_packages_apps_Camera" remote="github" revision="master" />
+	
+	<!-- vendor/htc/hero -->
+	<project path="vendor/htc/hero" name="sodnpoo/Hero-CM-vendor" remote="github" revision="master" />	
+</manifest>
+---cut here---
 
-5. copy vendor/htc/hero/added_files/cyanogen_hero.mk to vendor/cyanogen/products/
+4.  sync the repo - this will take a while
+      repo sync
 
-6. push your favourite boot animation to vendor/htc/hero/media/
+5.  copy an existing eclair rom to the cm directory - I use VillianROM 10 - must be named update-hero.zip
+      cp /path/to/rom/VillainROM10-Full-signed.zip update-hero.zip
 
-7. execute vendor/htc/hero/extract-files.sh to copy proprietary and prebuilt files from your current rom
+6.  setup the build environment
+      . build/envsetup.sh
 
-8. put your favourite kernel in vendor/htc/prebuilt. Make sure it is named "kernel".
+7.  choose to build for hero
+      lunch cyanogen_hero-eng
 
-9. execute ". ./build/envsetup.sh"
+8.  run the unzip-files script
+      vendor/htc/hero/unzip-files.sh
+      
+9.  build the kernel and the wlan module
+      vendor/htc/hero/build-kernel.sh
+      
+10. build the ota zip ready for flashing (in out/target/product/hero)
+      make -j3 otapackage
 
-10. execute "lunch" and choose "cyanogen_hero-eng"
+---
+Lee@sodnpoo.com
+---
 
-11. make :)
+This is based on the work of Cyanogen, Behnaam, Toastcfh, Elemag and Maxisma.
 
-NOTES:
-you will have to go to external/busybox and issue a
-git checkout d0194cfc47a71a65e049
-until the problems with the new version of busybox are resolved
