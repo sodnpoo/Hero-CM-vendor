@@ -9,6 +9,11 @@ ALL_PREBUILT += $(file)
 $(file): $(TARGET_PREBUILT_KERNEL) | $(ACP)
 	$(transform-prebuilt-to-target)
 
+file := $(TARGET_OUT)/lib/modules/wlan.ko
+ALL_PREBUILT += $(file)
+$(file) : $(LOCAL_PATH)/prebuilt/wlan.ko | $(ACP)
+	$(transform-prebuilt-to-target)
+
 file := $(TARGET_OUT)/bin/akmd
 ALL_PREBUILT += $(file)
 $(file) : $(LOCAL_PATH)/proprietary/akmd | $(ACP)
